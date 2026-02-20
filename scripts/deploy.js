@@ -34,6 +34,23 @@ async function main() {
   console.log("\nSave these addresses for your .env file:");
   console.log(`B33F_COIN_ADDRESS=${b33fCoinAddress}`);
   console.log(`CLOUT_BATTLE_ADDRESS=${cloutBattleAddress}`);
+
+  // When running on localhost, write backend/.env for local testing
+  const network = process.env.HARDHAT_NETWORK || "";
+  if (network === "localhost") {
+    const fs = require("fs");
+    const path = require("path");
+    const backendEnv = path.join(__dirname, "..", "backend", ".env");
+    const content = [
+      "RPC_URL=http://127.0.0.1:8545",
+      "LOCAL=true",
+      `B33F_COIN_ADDRESS=${b33fCoinAddress}`,
+      `CLOUT_BATTLE_ADDRESS=${cloutBattleAddress}`,
+      "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    ].join("\n");
+    fs.writeFileSync(backendEnv, content, "utf8");
+    console.log("\nWrote", backendEnv);
+  }
 }
 
 main()

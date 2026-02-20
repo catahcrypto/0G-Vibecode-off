@@ -1,1 +1,14 @@
 node_modules
+env
+.env
+
+artifacts
+cache
+deployments
+node_modules
+.env
+.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

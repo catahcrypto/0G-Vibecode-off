@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "backend": "cd backend && node src/server.js",
+    "frontend": "cd frontend && npm run dev"
   },
   "repository": {
     "type": "git",
