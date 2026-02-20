@@ -59,7 +59,7 @@ async function getContractService(config) {
     },
     subscribeBattleCreated(cb) {
       cloutBattle.on("BattleCreated", (battleId, challenger, opponent, timestamp) => {
-        cb({ battleId: Number(battleId), challenger, opponent, timestamp: Number(timestamp) });
+        cb(Number(battleId), challenger, opponent, Number(timestamp));
       });
     },
   };

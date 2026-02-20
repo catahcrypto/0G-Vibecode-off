@@ -1,7 +1,9 @@
 const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
+  const networkName = hre.network.name;
   
   console.log("Deploying contracts with account:", deployer.address);
   console.log("Account balance:", (await ethers.provider.getBalance(deployer.address)).toString());
@@ -36,8 +38,7 @@ async function main() {
   console.log(`CLOUT_BATTLE_ADDRESS=${cloutBattleAddress}`);
 
   // When running on localhost, write backend/.env for local testing
-  const network = process.env.HARDHAT_NETWORK || "";
-  if (network === "localhost") {
+  if (networkName === "localhost") {
     const fs = require("fs");
     const path = require("path");
     const backendEnv = path.join(__dirname, "..", "backend", ".env");

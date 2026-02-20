@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "Clout Battle",
   description: "Battle for clout on 0G",

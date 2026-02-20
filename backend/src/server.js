@@ -35,7 +35,7 @@ async function init() {
 
     // On BattleCreated: resolve with mock sentiment (local mode)
     if (config.isLocal && config.privateKey) {
-      contracts.subscribeBattleCreated(async ({ battleId, challenger, opponent }) => {
+      contracts.subscribeBattleCreated(async (battleId, challenger, opponent) => {
         console.log("BattleCreated", battleId, challenger, opponent);
         try {
           const [userChallenger, userOpponent] = await Promise.all([
@@ -73,7 +73,7 @@ async function init() {
           const winner = winnerIsChallenger ? challenger : opponent;
           const daBlobHash = "0x" + Buffer.from(`battle-${battleId}-${winner}`).toString("hex").padStart(64, "0").slice(0, 64);
 
-          await contracts.resolveBattle(battleId, winner, daBlobHash);
+          await contracts.resolveBattle(Number(battleId), winner, daBlobHash);
           console.log("Battle resolved:", battleId, "winner:", winner);
         } catch (err) {
           console.error("Error resolving battle:", err);
@@ -194,6 +194,17 @@ app.get("/api/config", (req, res) => {
     b33fCoinAddress: config.b33fCoinAddress || "",
     cloutBattleAddress: config.cloutBattleAddress || "",
     isLocal: config.isLocal,
+  });
+});
+
+app.get("/api/debug", (req, res) => {
+  res.json({
+    config: {
+      ...config,
+      privateKey: config.privateKey ? `${config.privateKey.slice(0, 10)}...` : "(not set)",
+    },
+    contractsInitialized: contracts !== null,
+    registeredUsersCount: registeredUsers.size,
   });
 });
 

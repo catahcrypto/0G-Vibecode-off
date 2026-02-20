@@ -34,26 +34,48 @@ export function CreateBattle({ contract, address, onCreated }) {
     }
   };
 
-  if (!contract || !address) return null;
+  if (!address) return null;
+
+  if (!contract) {
+    return (
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>Challenge someone</h3>
+        <p style={{ color: "#a1a1aa" }}>Waiting for contract connection...</p>
+      </div>
+    );
+  }
+
+  if (opponents.length === 0) {
+    return (
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>Challenge someone</h3>
+        <p style={{ color: "#a1a1aa" }}>
+          No other registered users yet. Register another account to battle!
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="card">
       <h3 style={{ marginTop: 0 }}>Challenge someone</h3>
-      <select
-        value={selected}
-        onChange={(e) => setSelected(e.target.value)}
-        style={{ padding: 10, borderRadius: 8, background: "#18181b", color: "#e0e0e0", border: "1px solid #3f3f46", marginRight: 8 }}
-      >
-        <option value="">Select opponent</option>
-        {opponents.map((u) => (
-          <option key={u.address} value={u.address}>
-            {u.twitterHandle || u.address?.slice(0, 10)}... (W:{u.battlesWon ?? 0})
-          </option>
-        ))}
-      </select>
-      <button className="primary" onClick={create} disabled={!selected || loading}>
-        {loading ? "Creating..." : "Create Battle"}
-      </button>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          style={{ padding: 10, borderRadius: 8, background: "#18181b", color: "#e0e0e0", border: "1px solid #3f3f46", minWidth: 200 }}
+        >
+          <option value="">Select opponent</option>
+          {opponents.map((u) => (
+            <option key={u.address} value={u.address}>
+              {u.twitterHandle || u.address?.slice(0, 10)}... (W:{u.battlesWon ?? 0})
+            </option>
+          ))}
+        </select>
+        <button className="primary" onClick={create} disabled={!selected || loading}>
+          {loading ? "Creating..." : "Create Battle"}
+        </button>
+      </div>
       {error && <div style={{ color: "#ef4444", marginTop: 8 }}>{error}</div>}
     </div>
   );

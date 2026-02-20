@@ -7,7 +7,6 @@ import { RegisterForm } from "@/components/RegisterForm";
 import { CreateBattle } from "@/components/CreateBattle";
 import { BattleList } from "@/components/BattleList";
 import { Leaderboard } from "@/components/Leaderboard";
-import "./globals.css";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -28,8 +27,21 @@ export default function Home() {
   const [balance, setBalance] = useState("");
   const [refresh, setRefresh] = useState(0);
 
+  const loadConfig = async () => {
+    try {
+      const res = await fetch(`${API}/api/config`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      console.log("Config loaded:", data);
+      setConfig(data);
+    } catch (err) {
+      console.error("Failed to load config:", err);
+      setConfig({});
+    }
+  };
+
   useEffect(() => {
-    fetch(`${API}/api/config`).then((r) => r.json()).then(setConfig).catch(() => ({}));
+    loadConfig();
   }, []);
 
   useEffect(() => {
@@ -43,11 +55,18 @@ export default function Home() {
 
   const [writeContract, setWriteContract] = useState(null);
   useEffect(() => {
-    if (!address || !config.cloutBattleAddress || typeof window === "undefined" || !window.ethereum) return;
+    if (!address || !config.cloutBattleAddress || typeof window === "undefined" || !window.ethereum) {
+      setWriteContract(null);
+      return;
+    }
     const provider = new ethers.BrowserProvider(window.ethereum);
     provider.getSigner().then((signer) => {
-      setWriteContract(new ethers.Contract(config.cloutBattleAddress, CLOUT_BATTLE_ABI, signer));
-    }).catch(() => setWriteContract(null));
+      const contract = new ethers.Contract(config.cloutBattleAddress, CLOUT_BATTLE_ABI, signer);
+      setWriteContract(contract);
+    }).catch((err) => {
+      console.error("Failed to get signer:", err);
+      setWriteContract(null);
+    });
   }, [address, config.cloutBattleAddress]);
 
   useEffect(() => {
@@ -77,7 +96,30 @@ export default function Home() {
 
           {!config.cloutBattleAddress && (
             <div className="card" style={{ borderColor: "#f59e0b" }}>
-              Deploy contracts first: run <code>npx hardhat node</code>, then <code>npm run deploy:local</code>, then set B33F_COIN_ADDRESS and CLOUT_BATTLE_ADDRESS in backend .env and restart backend.
+              <strong>Contract addresses not loaded.</strong>
+              <ol style={{ margin: "12px 0 0 0", paddingLeft: 20 }}>
+                <li>Start chain: <code>npm run node</code> (leave running)</li>
+                <li>Deploy: <code>npm run deploy:local</code> (writes backend/.env)</li>
+                <li>Start backend: <code>npm run backend</code> (or restart it)</li>
+                <li>
+                  <button className="secondary" onClick={loadConfig} style={{ marginTop: 8 }}>
+                    Reload Config
+                  </button>
+                </li>
+              </ol>
+              <details style={{ marginTop: 12, fontSize: 12, color: "#a1a1aa" }}>
+                <summary>Debug info</summary>
+                <pre style={{ marginTop: 8, overflow: "auto", fontSize: 11 }}>
+                  Config from API: {JSON.stringify(config, null, 2)}
+                  WriteContract: {writeContract ? "Set ✓" : "Not set ✗"}
+                  API URL: {API}
+                </pre>
+                <div style={{ marginTop: 8 }}>
+                  <a href={`${API}/api/debug`} target="_blank" rel="noopener" style={{ color: "#a78bfa" }}>
+                    Check backend debug endpoint
+                  </a>
+                </div>
+              </details>
             </div>
           )}
 
